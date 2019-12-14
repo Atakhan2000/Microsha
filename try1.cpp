@@ -12,7 +12,9 @@
 #include <sys/resource.h>
 
 using namespace std;
+
 pid_t CHILDid;
+
 void deleteSpacesFromStart(string &s) {
     int i = 0;
     while (s[i] == ' ') i++;
@@ -64,6 +66,7 @@ void cd(string &input) {
         }
     }
 }
+
 void pwd() {
     char add[1000];
     char *s;
@@ -326,35 +329,6 @@ void writeToFile(string &s, int read) {
     open(name.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
     execQuant(cmd, read, 1);
 }
-void readFromFile(string &s, int write) {
-    addSpacesToEnd(s);
-    string cmd = s.substr(0, s.find('<'));
-    s = s.substr(s.find('<') + 1, s.size());
-    if (s.find('<') != -1) {
-        fprintf(stderr, "Недопустимая команда: %s\n", (cmd + s).c_str());
-        exit(0);
-    }
-    deleteSpacesFromStart(s);
-    string name = s.substr(0, s.find(' '));
-    close(0);
-    open(name.c_str(), O_RDWR | O_CREAT, 0666);
-    execQuant(cmd, 0, write);
-}
-
-void writeToFile(string &s, int read) {
-    addSpacesToEnd(s);
-    string cmd = s.substr(0, s.find('>'));
-    s = s.substr(s.find('>') + 1, s.size());
-    if (s.find('>') != -1 || s.find('<') != -1) {
-        fprintf(stderr, "Недопустимая команда: %s\n", (cmd + s).c_str());
-        exit(0);
-    }
-    deleteSpacesFromStart(s);
-    string name = s.substr(0, s.find(' '));
-    close(1);
-    open(name.c_str(), O_RDWR | O_CREAT | O_TRUNC, 0666);
-    execQuant(cmd, read, 1);
-}
 
 void g(string &s) {
     vector<int> pipeArray(1000);
@@ -535,6 +509,7 @@ void sigHandler(int sig) {
 }
 
 int main(int argc, char **argv, char **envp) {
+    signal(SIGINT, sigHandler);
     uid_t u = getuid();
     char q;
     if (u == 0) {
